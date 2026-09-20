@@ -40,16 +40,16 @@
 
       <div class="content">
         <section class="page-head">
-          <div><h1>标签管理</h1><p>统一管理文档标签，提高知识分类与检索效率</p></div>
+          <div><h1>标签管理</h1><p>使用标签标识文档版本，快速区分发布阶段与归档状态</p></div>
           <button class="primary" id="createBtn"><i data-icon="plus"></i>新建标签</button>
         </section>
 
         <section class="workspace">
           <div class="filters">
             <div class="search"><i data-icon="search"></i><input id="searchInput" placeholder="搜索标签名称或描述" /><kbd>⌘ K</kbd></div>
-            <select id="groupFilter" aria-label="标签分组"><option value="">全部分组</option><option>文档类型</option><option>业务领域</option><option>项目阶段</option><option>风险等级</option></select>
+            <select id="groupFilter" aria-label="标签分组"></select>
             <select id="statusFilter" aria-label="状态"><option value="">全部状态</option><option value="enabled">已启用</option><option value="disabled">已停用</option></select>
-            <button class="ghost"><i data-icon="filter"></i>更多筛选</button>
+            <button class="ghost" id="groupManageBtn"><i data-icon="settings"></i>分组管理</button>
             <div class="spacer"></div>
             <button class="icon-button" title="刷新" id="refreshBtn"><i data-icon="refresh"></i></button>
             <button class="ghost"><i data-icon="download"></i>导出</button>
@@ -57,7 +57,7 @@
 
           <div class="table-wrap">
             <table>
-              <thead><tr><th><input type="checkbox" aria-label="全选" /></th><th>标签名称</th><th>分组</th><th>关联文档</th><th>创建方式</th><th>更新时间</th><th>状态</th><th>操作</th></tr></thead>
+              <thead><tr><th><input type="checkbox" aria-label="全选" /></th><th>标签名称</th><th>分组</th><th>关联文档</th><th>更新时间</th><th>状态</th><th>操作</th></tr></thead>
               <tbody id="tagRows"></tbody>
             </table>
             <div class="empty" id="emptyState"><div class="empty-icon"><i data-icon="search"></i></div><h3>没有找到匹配的标签</h3><p>请调整搜索条件或创建新标签</p><button class="ghost" id="clearFilter">清除筛选</button></div>
@@ -70,11 +70,11 @@
 
   <div class="overlay" id="modalOverlay" hidden>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head"><div><h2 id="modalTitle">新建标签</h2><p>标签将用于文档分类、筛选和智能检索</p></div><button class="close" data-close>×</button></div>
+      <div class="modal-head"><div><h2 id="modalTitle">新建版本标签</h2><p>为文档标记明确的版本或发布阶段</p></div><button class="close" data-close>×</button></div>
       <form id="createForm">
-        <label>标签名称 <b>*</b><input name="name" maxlength="20" required placeholder="例如：需求文档" /></label>
-        <div class="form-row"><label>标签分组 <b>*</b><select name="group" required><option value="">请选择分组</option><option>文档类型</option><option>业务领域</option><option>项目阶段</option><option>风险等级</option></select></label><label>标签颜色<div class="color-picker" id="colorPicker"><button type="button" class="selected" data-color="#696cff"></button><button type="button" data-color="#25b8f7"></button><button type="button" data-color="#20c997"></button><button type="button" data-color="#ffb020"></button><button type="button" data-color="#ff5d72"></button></div></label></div>
-        <label>标签描述<textarea name="description" rows="3" placeholder="说明该标签的适用范围，便于团队正确使用"></textarea></label>
+        <label>标签名称 <b>*</b><input name="name" maxlength="20" required placeholder="例如：V2.5.0" /></label>
+        <label>标签分组 <b>*</b><select id="createGroupSelect" name="group" required></select><small class="field-tip">分组可在“分组管理”中自定义</small></label>
+        <label>版本说明<textarea name="description" rows="3" placeholder="例如：生产环境当前稳定版本"></textarea></label>
         <label class="switch-line"><span><b>创建后立即启用</b><small>启用后可在文档中选择此标签</small></span><input type="checkbox" name="enabled" checked /><i></i></label>
         <div class="modal-actions"><button type="button" class="ghost" data-close>取消</button><button type="submit" class="primary">创建标签</button></div>
       </form>
@@ -83,9 +83,20 @@
 
   <div class="drawer-shell" id="drawerShell" hidden><div class="drawer-scrim" data-drawer-close></div><aside class="drawer" aria-label="标签详情">
     <div class="drawer-head"><div><span>标签详情</span><h2 id="drawerTitle">需求文档</h2></div><button class="close" data-drawer-close>×</button></div>
-    <div class="drawer-body"><div class="tag-preview"><span id="drawerDot"></span><b id="drawerTag">需求文档</b><small id="drawerStatus">已启用</small></div><dl><div><dt>所属分组</dt><dd id="drawerGroup">文档类型</dd></div><div><dt>创建方式</dt><dd id="drawerType">手动创建</dd></div><div><dt>最近更新</dt><dd id="drawerTime">2026-09-20 11:42</dd></div></dl><div class="drawer-section"><div class="section-title"><h3>关联文档</h3><span id="drawerCount">32 篇</span></div><div id="relatedDocs"></div></div></div>
+    <div class="drawer-body"><div class="tag-preview"><span class="tag-symbol"><i data-icon="tag"></i></span><b id="drawerTag">V2.4.1</b><small id="drawerStatus">已启用</small></div><dl><div><dt>所属分组</dt><dd id="drawerGroup">产品版本</dd></div><div><dt>最近更新</dt><dd id="drawerTime">2026-09-20 11:42</dd></div></dl><div class="drawer-section"><div class="section-title"><h3>关联文档</h3><span id="drawerCount">32 篇</span></div><div id="relatedDocs"></div></div></div>
     <div class="drawer-actions"><button class="danger">删除标签</button><button class="primary"><i data-icon="edit"></i>编辑标签</button></div>
   </aside></div>
+
+  <div class="overlay" id="groupOverlay" hidden>
+    <section class="modal group-modal" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
+      <div class="modal-head"><div><h2 id="groupModalTitle">分组管理</h2><p>自定义标签分组，便于按版本维度统一管理</p></div><button class="close" data-group-close>×</button></div>
+      <div class="group-content">
+        <form id="groupForm" class="group-form"><input id="groupNameInput" maxlength="16" required placeholder="输入新分组名称" /><button class="primary" type="submit"><i data-icon="plus"></i>新增分组</button></form>
+        <div class="group-list" id="groupList"></div>
+      </div>
+      <div class="modal-actions group-actions"><button class="primary" type="button" data-group-close>完成</button></div>
+    </section>
+  </div>
   <div class="toast" id="toast" role="status"></div>
   <script src="./app.js"></script>
 </body>
