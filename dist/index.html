@@ -71,10 +71,10 @@
   <div class="overlay" id="modalOverlay" hidden>
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-head"><div><h2 id="modalTitle">新建版本标签</h2><p>为文档标记明确的版本或发布阶段</p></div><button class="close" data-close>×</button></div>
-      <form id="createForm">
-        <label>标签名称 <b>*</b><input name="name" maxlength="20" required placeholder="例如：V2.5.0" /></label>
-        <label>标签分组 <b>*</b><select id="createGroupSelect" name="group" required></select><small class="field-tip">分组可在“分组管理”中自定义</small></label>
-        <label>版本说明<textarea name="description" rows="3" placeholder="例如：生产环境当前稳定版本"></textarea></label>
+      <form id="createForm" autocomplete="off">
+        <label>标签名称 <b>*</b><input name="version_tag_name" maxlength="20" required readonly data-no-autofill autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="例如：V2.5.0" /></label>
+        <label>标签分组 <b>*</b><select id="createGroupSelect" name="version_group" autocomplete="off" required></select><small class="field-tip">分组可在“分组管理”中自定义</small></label>
+        <label>版本说明<textarea name="version_note" rows="3" autocomplete="off" placeholder="例如：生产环境当前稳定版本"></textarea></label>
         <label class="switch-line"><span><b>创建后立即启用</b><small>启用后可在文档中选择此标签</small></span><input type="checkbox" name="enabled" checked /><i></i></label>
         <div class="modal-actions"><button type="button" class="ghost" data-close>取消</button><button type="submit" class="primary">创建标签</button></div>
       </form>
@@ -91,7 +91,7 @@
     <section class="modal group-modal" role="dialog" aria-modal="true" aria-labelledby="groupModalTitle">
       <div class="modal-head"><div><h2 id="groupModalTitle">分组管理</h2><p>自定义标签分组，便于按版本维度统一管理</p></div><button class="close" data-group-close>×</button></div>
       <div class="group-content">
-        <form id="groupForm" class="group-form"><input id="groupNameInput" maxlength="16" required placeholder="输入新分组名称" /><button class="primary" type="submit"><i data-icon="plus"></i>新增分组</button></form>
+        <form id="groupForm" class="group-form" autocomplete="off"><input id="groupNameInput" name="version_group_name" maxlength="16" required readonly data-no-autofill autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="输入新分组名称" /><button class="primary" type="submit"><i data-icon="plus"></i>新增分组</button></form>
         <div class="group-list" id="groupList"></div>
       </div>
       <div class="modal-actions group-actions"><button class="primary" type="button" data-group-close>完成</button></div>

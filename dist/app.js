@@ -43,13 +43,13 @@ document.querySelector('#clearFilter').onclick=()=>{document.querySelector('#sea
 tbody.addEventListener('click',e=>{const open=e.target.closest('[data-open]'),toggle=e.target.closest('[data-toggle]');if(open)openDrawer(+open.dataset.open);if(toggle){const t=tags.find(x=>x.id===+toggle.dataset.toggle);t.enabled=!t.enabled;render();notify(`标签“${t.name}”已${t.enabled?'启用':'停用'}`)}});
 
 const modal=document.querySelector('#modalOverlay');
-document.querySelector('#createBtn').onclick=()=>{renderGroupOptions();modal.hidden=false;modal.querySelector('input').focus()};
+document.querySelector('#createBtn').onclick=()=>{renderGroupOptions();modal.hidden=false};
 document.querySelectorAll('[data-close]').forEach(x=>x.onclick=()=>modal.hidden=true);
 modal.onclick=e=>{if(e.target===modal)modal.hidden=true};
-document.querySelector('#createForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);tags.unshift({id:Date.now(),name:f.get('name'),desc:f.get('description')||'暂无版本说明',group:f.get('group'),docs:0,time:'2026-09-20 '+new Date().toTimeString().slice(0,5),enabled:f.get('enabled')==='on'});modal.hidden=true;e.target.reset();render();notify('版本标签创建成功')};
+document.querySelector('#createForm').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);tags.unshift({id:Date.now(),name:f.get('version_tag_name'),desc:f.get('version_note')||'暂无版本说明',group:f.get('version_group'),docs:0,time:'2026-09-20 '+new Date().toTimeString().slice(0,5),enabled:f.get('enabled')==='on'});modal.hidden=true;e.target.reset();render();notify('版本标签创建成功')};
 
 const groupOverlay=document.querySelector('#groupOverlay');
-document.querySelector('#groupManageBtn').onclick=()=>{renderGroupList();groupOverlay.hidden=false;document.querySelector('#groupNameInput').focus()};
+document.querySelector('#groupManageBtn').onclick=()=>{renderGroupList();groupOverlay.hidden=false};
 document.querySelectorAll('[data-group-close]').forEach(x=>x.onclick=()=>groupOverlay.hidden=true);
 groupOverlay.onclick=e=>{if(e.target===groupOverlay)groupOverlay.hidden=true};
 document.querySelector('#groupForm').onsubmit=e=>{e.preventDefault();const input=document.querySelector('#groupNameInput');const name=input.value.trim();if(!name)return;if(groups.includes(name)){notify('分组名称已存在');return}groups.push(name);input.value='';renderGroupOptions();renderGroupList();notify('分组已新增')};
@@ -59,5 +59,6 @@ document.querySelector('#groupList').onclick=e=>{const button=e.target.closest('
 function openDrawer(id){const t=tags.find(x=>x.id===id);if(!t)return;document.querySelector('#drawerTitle').textContent=t.name;document.querySelector('#drawerTag').textContent=t.name;document.querySelector('#drawerStatus').textContent=t.enabled?'已启用':'已停用';document.querySelector('#drawerGroup').textContent=t.group;document.querySelector('#drawerTime').textContent=t.time;document.querySelector('#drawerCount').textContent=t.docs+' 篇';document.querySelector('#relatedDocs').innerHTML=['1.9.指导文章','0.开发架构','5.1.后端状态整理'].map((n,i)=>`<div class="doc-item"><span class="doc-icon">K</span><div><b>${n}</b><small>更新于 2026-09-${18-i} · ${t.name}</small></div></div>`).join('');document.querySelector('#drawerShell').hidden=false}
 document.querySelectorAll('[data-drawer-close]').forEach(x=>x.onclick=()=>document.querySelector('#drawerShell').hidden=true);
 document.querySelector('#refreshBtn').onclick=e=>{const i=e.currentTarget.querySelector('svg');i.classList.add('spin');setTimeout(()=>{i.classList.remove('spin');notify('版本标签已更新')},650)};
+document.querySelectorAll('[data-no-autofill]').forEach(input=>{const unlock=()=>input.removeAttribute('readonly');input.addEventListener('pointerdown',unlock,{once:true});input.addEventListener('focus',unlock,{once:true})});
 function notify(msg){const t=document.querySelector('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),2200)}
 document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();document.querySelector('#searchInput').focus()}if(e.key==='Escape'){modal.hidden=true;groupOverlay.hidden=true;document.querySelector('#drawerShell').hidden=true}});
