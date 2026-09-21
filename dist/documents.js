@@ -1,4 +1,4 @@
-const iconPaths={tool:'<path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-3-3Z"/>',spark:'<path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Z"/>',database:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',shield:'<path d="M12 3 4.5 6v5.5c0 4.6 3.2 7.7 7.5 9.5 4.3-1.8 7.5-4.9 7.5-9.5V6L12 3Z"/>',key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8m-2 2 2 2"/>',code:'<path d="m8 9-4 3 4 3m8-6 4 3-4 3m-3-9-2 12"/>',bot:'<rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M8 12h.01M16 12h.01"/>',file:'<path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/>',chevron:'<path d="m9 10 3 3 3-3"/>',up:'<path d="m9 14 3-3 3 3"/>',panel:'<path d="M4 5h16v14H4zM9 5v14"/>',plus:'<path d="M12 5v14M5 12h14"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',refresh:'<path d="M20 6v5h-5M4 18v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 5M18 15a7 7 0 0 1-12 3l-2-5"/>',upload:'<path d="M12 16V4m-4 4 4-4 4 4M5 14v6h14v-6"/>',link:'<path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.1 1.1M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.1-1.1"/>',check:'<path d="m5 12 4 4L19 6"/>',close:'<path d="m7 7 10 10M17 7 7 17"/>'};
+const iconPaths={tool:'<path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-3-3Z"/>',spark:'<path d="m12 3 1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3Z"/>',database:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',shield:'<path d="M12 3 4.5 6v5.5c0 4.6 3.2 7.7 7.5 9.5 4.3-1.8 7.5-4.9 7.5-9.5V6L12 3Z"/>',key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8m-2 2 2 2"/>',code:'<path d="m8 9-4 3 4 3m8-6 4 3-4 3m-3-9-2 12"/>',bot:'<rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M8 12h.01M16 12h.01"/>',file:'<path d="M6 3h8l4 4v14H6zM14 3v5h5M9 13h6M9 17h6"/>',chevron:'<path d="m9 10 3 3 3-3"/>',up:'<path d="m9 14 3-3 3 3"/>',panel:'<path d="M4 5h16v14H4zM9 5v14"/>',plus:'<path d="M12 5v14M5 12h14"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',refresh:'<path d="M20 6v5h-5M4 18v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 5M18 15a7 7 0 0 1-12 3l-2-5"/>',upload:'<path d="M12 16V4m-4 4 4-4 4 4M5 14v6h14v-6"/>',link:'<path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.1 1.1M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.1-1.1"/>',check:'<path d="m5 12 4 4L19 6"/>',close:'<path d="m7 7 10 10M17 7 7 17"/>',trash:'<path d="M4 7h16M9 7V4h6v3m3 0-1 14H7L6 7m4 4v6m4-6v6"/>'};
 function svg(name){return `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${iconPaths[name]||''}</svg>`}
 document.querySelectorAll('[data-icon]').forEach(el=>{el.innerHTML=svg(el.dataset.icon)});
 
@@ -40,5 +40,28 @@ document.querySelectorAll('[data-document-close]').forEach(button=>button.onclic
 overlay.onclick=e=>{if(e.target===overlay)overlay.hidden=true};
 document.querySelector('#fileInput').onchange=e=>{const file=e.target.files[0];if(!file)return;document.querySelector('#uploadTitle').textContent=file.name;document.querySelector('#uploadHint').textContent=`${(file.size/1024/1024).toFixed(1)} MB · 已准备上传`};
 document.querySelector('#documentForm').onsubmit=e=>{e.preventDefault();const incomplete=[...selectedGroups].filter(group=>!selectedTags[group]);if(incomplete.length){notify(`请先选择“${incomplete[0]}”的标签`);return}notify('文档创建任务已提交');overlay.hidden=true};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;overlay.hidden=true}});
+const deleteOverlay=document.querySelector('#deleteDocumentOverlay');
+let pendingDeleteRow=null;
+document.querySelector('#documentTableBody').onclick=e=>{
+  const row=e.target.closest('tr');
+  if(!row)return;
+  if(e.target.closest('[data-toggle-document]')){
+    const enabled=row.dataset.status==='enabled';
+    row.dataset.status=enabled?'disabled':'enabled';
+    row.querySelector('[data-status-cell]').innerHTML=`<span class="status-pill ${enabled?'disabled':''}">${enabled?'停用':'生效'}</span>`;
+    const button=row.querySelector('[data-toggle-document]');
+    button.textContent=enabled?'启用':'停用';
+    button.classList.toggle('enable',enabled);
+    notify(`文档已${enabled?'停用':'启用'}`);
+  }
+  if(e.target.closest('[data-delete-document]')){
+    pendingDeleteRow=row;
+    document.querySelector('#deleteDocumentName').textContent=row.dataset.documentName;
+    deleteOverlay.hidden=false;
+  }
+};
+document.querySelectorAll('[data-delete-close]').forEach(button=>button.onclick=()=>{deleteOverlay.hidden=true;pendingDeleteRow=null});
+deleteOverlay.onclick=e=>{if(e.target===deleteOverlay){deleteOverlay.hidden=true;pendingDeleteRow=null}};
+document.querySelector('#confirmDeleteDocument').onclick=()=>{if(!pendingDeleteRow)return;const name=pendingDeleteRow.dataset.documentName;pendingDeleteRow.remove();pendingDeleteRow=null;deleteOverlay.hidden=true;notify(`“${name}”已删除`)};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;overlay.hidden=true;deleteOverlay.hidden=true;pendingDeleteRow=null}});
 function notify(message){const toast=document.querySelector('#toast');toast.textContent=message;toast.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>toast.classList.remove('show'),2200)}

@@ -38,17 +38,17 @@
         <section class="page-head"><div><h1>文档列表</h1><p>管理知识库文档及其版本标签</p></div><button class="primary" id="openDocumentModal"><i data-icon="plus"></i>新增文档</button></section>
         <section class="workspace">
           <div class="filters"><div class="search"><i data-icon="search"></i><input placeholder="搜索文件名称" /></div><select><option>全部知识库</option></select><select><option>全部状态</option></select><div class="spacer"></div><button class="icon-button"><i data-icon="refresh"></i></button></div>
-          <div class="table-wrap"><table><thead><tr><th>名称</th><th>知识库</th><th>版本标签</th><th>更新时间</th><th>状态</th></tr></thead><tbody>
-            <tr><td><div class="tag-meta"><b>1.9.指导文章</b><small>PDF · 2.4 MB</small></div></td><td>产品文档库</td><td><span class="group-pill">V2.4.1</span> <span class="group-pill">正式发布</span></td><td>2026-09-18 10:03:50</td><td><span class="status-pill">生效</span></td></tr>
-            <tr><td><div class="tag-meta"><b>0.开发架构</b><small>DOCX · 1.8 MB</small></div></td><td>技术文档库</td><td><span class="group-pill">V2.4.0</span></td><td>2026-09-18 10:01:27</td><td><span class="status-pill">生效</span></td></tr>
-            <tr><td><div class="tag-meta"><b>5.1.后端状态整理</b><small>PDF · 3.1 MB</small></div></td><td>技术文档库</td><td><span class="group-pill">Release Candidate</span></td><td>2026-09-17 18:22:54</td><td><span class="status-pill">生效</span></td></tr>
+          <div class="table-wrap"><table class="documents-table"><thead><tr><th>名称</th><th>知识库</th><th>版本标签</th><th>更新时间</th><th>状态</th><th>操作</th></tr></thead><tbody id="documentTableBody">
+            <tr data-document-name="1.9.指导文章" data-status="enabled"><td><div class="tag-meta"><b>1.9.指导文章</b><small>PDF · 2.4 MB</small></div></td><td>产品文档库</td><td><span class="group-pill">V2.4.1</span> <span class="group-pill">正式发布</span></td><td>2026-09-18 10:03:50</td><td data-status-cell><span class="status-pill">生效</span></td><td><div class="document-row-actions"><button type="button" class="status-action" data-toggle-document>停用</button><button type="button" class="delete-action" data-delete-document>删除</button></div></td></tr>
+            <tr data-document-name="0.开发架构" data-status="enabled"><td><div class="tag-meta"><b>0.开发架构</b><small>DOCX · 1.8 MB</small></div></td><td>技术文档库</td><td><span class="group-pill">V2.4.0</span></td><td>2026-09-18 10:01:27</td><td data-status-cell><span class="status-pill">生效</span></td><td><div class="document-row-actions"><button type="button" class="status-action" data-toggle-document>停用</button><button type="button" class="delete-action" data-delete-document>删除</button></div></td></tr>
+            <tr data-document-name="5.1.后端状态整理" data-status="disabled"><td><div class="tag-meta"><b>5.1.后端状态整理</b><small>PDF · 3.1 MB</small></div></td><td>技术文档库</td><td><span class="group-pill">Release Candidate</span></td><td>2026-09-17 18:22:54</td><td data-status-cell><span class="status-pill disabled">停用</span></td><td><div class="document-row-actions"><button type="button" class="status-action enable" data-toggle-document>启用</button><button type="button" class="delete-action" data-delete-document>删除</button></div></td></tr>
           </tbody></table></div>
         </section>
       </div>
     </main>
   </div>
 
-  <div class="overlay" id="documentOverlay">
+  <div class="overlay" id="documentOverlay" hidden>
     <section class="modal document-modal" role="dialog" aria-modal="true" aria-labelledby="documentModalTitle">
       <div class="modal-head"><div><h2 id="documentModalTitle">新增文档</h2><p>上传文档并设置对应的版本标签</p></div><button class="close" data-document-close>×</button></div>
       <form id="documentForm" class="document-form" autocomplete="off">
@@ -66,6 +66,14 @@
         <label class="upload-zone" for="fileInput"><input id="fileInput" type="file" required accept=".pdf,.doc,.docx,.txt" /><span class="upload-icon"><i data-icon="upload"></i></span><b id="uploadTitle">拖拽文件到此处，或点击上传</b><small id="uploadHint">选择文件后可继续确认标签</small></label>
         <div class="modal-actions document-actions"><button type="button" class="ghost" data-document-close>取消</button><button type="submit" class="primary" id="createDocumentBtn">确认创建</button></div>
       </form>
+    </section>
+  </div>
+  <div class="overlay confirm-overlay" id="deleteDocumentOverlay" hidden>
+    <section class="modal confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="deleteDocumentTitle" aria-describedby="deleteDocumentDescription">
+      <div class="confirm-icon"><i data-icon="trash"></i></div>
+      <h2 id="deleteDocumentTitle">删除文档</h2>
+      <p id="deleteDocumentDescription">删除后将无法恢复，确定要删除“<strong id="deleteDocumentName"></strong>”吗？</p>
+      <div class="modal-actions"><button type="button" class="ghost" data-delete-close>取消</button><button type="button" class="danger confirm-delete" id="confirmDeleteDocument">确认删除</button></div>
     </section>
   </div>
   <div class="toast" id="toast" role="status"></div>
