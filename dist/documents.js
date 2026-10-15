@@ -41,27 +41,89 @@ overlay.onclick=e=>{if(e.target===overlay)overlay.hidden=true};
 document.querySelector('#fileInput').onchange=e=>{const file=e.target.files[0];if(!file)return;document.querySelector('#uploadTitle').textContent=file.name;document.querySelector('#uploadHint').textContent=`${(file.size/1024/1024).toFixed(1)} MB · 已准备上传`};
 document.querySelector('#documentForm').onsubmit=e=>{e.preventDefault();const incomplete=[...selectedGroups].filter(group=>!selectedTags[group]);if(incomplete.length){notify(`请先选择“${incomplete[0]}”的标签`);return}notify('文档创建任务已提交');overlay.hidden=true};
 const deleteOverlay=document.querySelector('#deleteDocumentOverlay');
-let pendingDeleteRow=null;
-document.querySelector('#documentTableBody').onclick=e=>{
+const documentTableBody=document.querySelector('#documentTableBody');
+const selectAllDocuments=document.querySelector('#selectAllDocuments');
+const bulkEnable=document.querySelector('#bulkEnable');
+const bulkDisable=document.querySelector('#bulkDisable');
+const bulkDelete=document.querySelector('#bulkDelete');
+let pendingDeleteRows=[];
+const documentRows=()=>[...documentTableBody.querySelectorAll('tr')];
+const selectedDocumentRows=()=>documentRows().filter(row=>row.querySelector('.document-checkbox').checked);
+
+function updateBulkControls(){
+  const rows=documentRows();
+  const selected=selectedDocumentRows();
+  document.querySelector('#documentSelectionCount').textContent=selected.length?`已选择 ${selected.length} 个文档`:'请选择文档';
+  selectAllDocuments.checked=rows.length>0&&selected.length===rows.length;
+  selectAllDocuments.indeterminate=selected.length>0&&selected.length<rows.length;
+  selectAllDocuments.disabled=rows.length===0;
+  bulkEnable.disabled=!selected.some(row=>row.dataset.status==='disabled');
+  bulkDisable.disabled=!selected.some(row=>row.dataset.status==='enabled');
+  bulkDelete.disabled=selected.length===0;
+  rows.forEach(row=>row.classList.toggle('selected',row.querySelector('.document-checkbox').checked));
+}
+
+function setDocumentStatus(row,enabled){
+  row.dataset.status=enabled?'enabled':'disabled';
+  row.querySelector('[data-status-cell]').innerHTML=`<span class="status-pill ${enabled?'':'disabled'}">${enabled?'生效':'停用'}</span>`;
+  const button=row.querySelector('[data-toggle-document]');
+  button.textContent=enabled?'停用':'启用';
+  button.classList.toggle('enable',!enabled);
+}
+
+function openDeleteConfirmation(rows){
+  pendingDeleteRows=rows;
+  document.querySelector('#deleteDocumentTitle').textContent=rows.length>1?'批量删除文档':'删除文档';
+  const description=document.querySelector('#deleteDocumentDescription');
+  description.textContent=rows.length>1?`删除后将无法恢复，确定要删除选中的 ${rows.length} 个文档吗？`:`删除后将无法恢复，确定要删除“${rows[0].dataset.documentName}”吗？`;
+  deleteOverlay.hidden=false;
+  document.querySelector('#confirmDeleteDocument').focus();
+}
+
+selectAllDocuments.onchange=()=>{
+  documentRows().forEach(row=>{row.querySelector('.document-checkbox').checked=selectAllDocuments.checked});
+  updateBulkControls();
+};
+documentTableBody.onchange=e=>{if(e.target.matches('.document-checkbox'))updateBulkControls()};
+bulkEnable.onclick=()=>{
+  const affected=selectedDocumentRows().filter(row=>row.dataset.status==='disabled');
+  affected.forEach(row=>setDocumentStatus(row,true));
+  updateBulkControls();
+  notify(`已启用 ${affected.length} 个文档`);
+};
+bulkDisable.onclick=()=>{
+  const affected=selectedDocumentRows().filter(row=>row.dataset.status==='enabled');
+  affected.forEach(row=>setDocumentStatus(row,false));
+  updateBulkControls();
+  notify(`已停用 ${affected.length} 个文档`);
+};
+bulkDelete.onclick=()=>openDeleteConfirmation(selectedDocumentRows());
+
+documentTableBody.onclick=e=>{
   const row=e.target.closest('tr');
   if(!row)return;
   if(e.target.closest('[data-toggle-document]')){
     const enabled=row.dataset.status==='enabled';
-    row.dataset.status=enabled?'disabled':'enabled';
-    row.querySelector('[data-status-cell]').innerHTML=`<span class="status-pill ${enabled?'disabled':''}">${enabled?'停用':'生效'}</span>`;
-    const button=row.querySelector('[data-toggle-document]');
-    button.textContent=enabled?'启用':'停用';
-    button.classList.toggle('enable',enabled);
+    setDocumentStatus(row,!enabled);
+    updateBulkControls();
     notify(`文档已${enabled?'停用':'启用'}`);
   }
   if(e.target.closest('[data-delete-document]')){
-    pendingDeleteRow=row;
-    document.querySelector('#deleteDocumentName').textContent=row.dataset.documentName;
-    deleteOverlay.hidden=false;
+    openDeleteConfirmation([row]);
   }
 };
-document.querySelectorAll('[data-delete-close]').forEach(button=>button.onclick=()=>{deleteOverlay.hidden=true;pendingDeleteRow=null});
-deleteOverlay.onclick=e=>{if(e.target===deleteOverlay){deleteOverlay.hidden=true;pendingDeleteRow=null}};
-document.querySelector('#confirmDeleteDocument').onclick=()=>{if(!pendingDeleteRow)return;const name=pendingDeleteRow.dataset.documentName;pendingDeleteRow.remove();pendingDeleteRow=null;deleteOverlay.hidden=true;notify(`“${name}”已删除`)};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;overlay.hidden=true;deleteOverlay.hidden=true;pendingDeleteRow=null}});
+function closeDeleteConfirmation(){deleteOverlay.hidden=true;pendingDeleteRows=[]}
+document.querySelectorAll('[data-delete-close]').forEach(button=>button.onclick=closeDeleteConfirmation);
+deleteOverlay.onclick=e=>{if(e.target===deleteOverlay)closeDeleteConfirmation()};
+document.querySelector('#confirmDeleteDocument').onclick=()=>{
+  if(!pendingDeleteRows.length)return;
+  const count=pendingDeleteRows.length;
+  const name=pendingDeleteRows[0].dataset.documentName;
+  pendingDeleteRows.forEach(row=>row.remove());
+  closeDeleteConfirmation();
+  updateBulkControls();
+  notify(count===1?`“${name}”已删除`:`已删除 ${count} 个文档`);
+};
+updateBulkControls();
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu.hidden=true;overlay.hidden=true;closeDeleteConfirmation()}});
 function notify(message){const toast=document.querySelector('#toast');toast.textContent=message;toast.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>toast.classList.remove('show'),2200)}
