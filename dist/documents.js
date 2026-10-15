@@ -46,12 +46,16 @@ const selectAllDocuments=document.querySelector('#selectAllDocuments');
 const bulkEnable=document.querySelector('#bulkEnable');
 const bulkDisable=document.querySelector('#bulkDisable');
 const bulkDelete=document.querySelector('#bulkDelete');
+const documentWorkspace=document.querySelector('#documentWorkspace');
+const bulkModeButton=document.querySelector('#toggleBulkMode');
+const documentSearchInput=document.querySelector('#documentSearchInput');
 let pendingDeleteRows=[];
 const documentRows=()=>[...documentTableBody.querySelectorAll('tr')];
-const selectedDocumentRows=()=>documentRows().filter(row=>row.querySelector('.document-checkbox').checked);
+const visibleDocumentRows=()=>documentRows().filter(row=>!row.hidden);
+const selectedDocumentRows=()=>visibleDocumentRows().filter(row=>row.querySelector('.document-checkbox').checked);
 
 function updateBulkControls(){
-  const rows=documentRows();
+  const rows=visibleDocumentRows();
   const selected=selectedDocumentRows();
   document.querySelector('#documentSelectionCount').textContent=selected.length?`已选择 ${selected.length} 个文档`:'请选择文档';
   selectAllDocuments.checked=rows.length>0&&selected.length===rows.length;
@@ -60,7 +64,10 @@ function updateBulkControls(){
   bulkEnable.disabled=!selected.some(row=>row.dataset.status==='disabled');
   bulkDisable.disabled=!selected.some(row=>row.dataset.status==='enabled');
   bulkDelete.disabled=selected.length===0;
-  rows.forEach(row=>row.classList.toggle('selected',row.querySelector('.document-checkbox').checked));
+  documentRows().forEach(row=>row.classList.toggle('selected',row.querySelector('.document-checkbox').checked));
+  const empty=document.querySelector('#documentEmpty');
+  empty.hidden=rows.length>0;
+  empty.textContent=documentRows().length?'没有符合条件的文档':'暂无文档';
 }
 
 function setDocumentStatus(row,enabled){
@@ -80,8 +87,27 @@ function openDeleteConfirmation(rows){
   document.querySelector('#confirmDeleteDocument').focus();
 }
 
+bulkModeButton.onclick=()=>{
+  const active=documentWorkspace.classList.toggle('bulk-mode');
+  bulkModeButton.setAttribute('aria-pressed',String(active));
+  bulkModeButton.textContent=active?'退出批量':'批量操作';
+  document.querySelector('.document-bulk-bar').hidden=!active;
+  if(!active)documentRows().forEach(row=>{row.querySelector('.document-checkbox').checked=false});
+  updateBulkControls();
+};
+function applyDocumentSearch(){
+  const keyword=documentSearchInput.value.trim().toLocaleLowerCase();
+  documentRows().forEach(row=>{
+    row.hidden=!row.dataset.documentName.toLocaleLowerCase().includes(keyword);
+    if(row.hidden)row.querySelector('.document-checkbox').checked=false;
+  });
+  updateBulkControls();
+}
+document.querySelector('#documentSearchButton').onclick=applyDocumentSearch;
+documentSearchInput.onkeydown=e=>{if(e.key==='Enter')applyDocumentSearch()};
+document.querySelector('#resetDocumentSearch').onclick=()=>{documentSearchInput.value='';applyDocumentSearch()};
 selectAllDocuments.onchange=()=>{
-  documentRows().forEach(row=>{row.querySelector('.document-checkbox').checked=selectAllDocuments.checked});
+  visibleDocumentRows().forEach(row=>{row.querySelector('.document-checkbox').checked=selectAllDocuments.checked});
   updateBulkControls();
 };
 documentTableBody.onchange=e=>{if(e.target.matches('.document-checkbox'))updateBulkControls()};
